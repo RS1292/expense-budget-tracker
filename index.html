@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Inventory Management System</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #1e1e1e; color: #d4d4d4; font-family: monospace; padding: 20px; }
+    h2   { color: #4ec9b0; margin-bottom: 4px; }
+    p.sub { color: #888; font-size: 13px; margin-bottom: 12px; }
+    #output {
+      background: #0d0d0d;
+      color: #00ff41;
+      padding: 16px;
+      height: 420px;
+      overflow-y: auto;
+      border: 1px solid #333;
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.5;
+      border-radius: 4px;
+    }
+    #input-row { display: flex; margin-top: 10px; gap: 8px; }
+    #userinput {
+      flex: 1;
+      background: #0d0d0d;
+      color: #00ff41;
+      border: 1px solid #4ec9b0;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 14px;
+      border-radius: 4px;
+      outline: none;
+    }
+    #userinput:focus { border-color: #7ee8d4; }
+    button {
+      background: #4ec9b0;
+      color: #000;
+      border: none;
+      padding: 10px 24px;
+      font-family: monospace;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    button:hover { background: #3ab89a; }
+    #status { color: #888; font-size: 12px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <h2>📦 Inventory Management System</h2>
+  <p class="sub">Type a number and press Enter or click Send to interact.</p>
+  <div id="output"></div>
+  <div id="input-row">
+    <input id="userinput" type="text" placeholder="Enter input here..." autofocus autocomplete="off"/>
+    <button onclick="sendInput()">Send</button>
+  </div>
+  <p id="status">Loading...</p>
+
+  <script>
+    var outputEl  = document.getElementById('output');
+    var statusEl  = document.getElementById('status');
+    var inputEl   = document.getElementById('userinput');
+
+    /* Capture all printf output */
+    var Module = {
+      print: function(text) {
+        outputEl.textContent += text + '\n';
+        outputEl.scrollTop = outputEl.scrollHeight;
+      },
+      printErr: function(text) {
+        /* silence internal emscripten noise */
+      },
+      onRuntimeInitialized: function() {
+        statusEl.textContent = 'Ready. Type your input above.';
+      }
+    };
+
+    inputEl.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') sendInput();
+    });
+
+    function sendInput() {
+      var val = inputEl.value.trim();
+      outputEl.textContent += '> ' + val + '\n';
+      outputEl.scrollTop = outputEl.scrollHeight;
+      /* Call the C function handleInput(const char* input) */
+      Module.ccall('handleInput', null, ['string'], [val]);
+      inputEl.value = '';
+      inputEl.focus();
+    }
+  </script>
+
+  <script async type="text/javascript" src="index.js"></script>
+</body>
+</html>
