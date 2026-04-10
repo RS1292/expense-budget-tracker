@@ -129,36 +129,43 @@ function showMessage(elementId, text, type = 'success') {
 }
 
 function updateBudgetDisplay() {
-  if (budgetManager.budget <= 0 || budgetManager.budget > 999999 || isNaN(budgetManager.budget)) {
+  const budget = budgetManager.budget;
+  const used = budgetManager.getCurrentMonthTotal();
+  
+  // Hide if no budget set
+  if (!budget || budget <= 0 || budget > 999999 || isNaN(budget)) {
     document.getElementById('budgetStatus').style.display = 'none';
     return;
   }
   
-  document.getElementById('budgetStatus').style.display = 'block';
-  const used = budgetManager.getCurrentMonthTotal();
-  const total = budgetManager.budget;
-  let percentage = (used / total) * 100;
+  // Show status
+  const statusEl = document.getElementById('budgetStatus');
+  statusEl.style.display = 'block';
   
-  // Ensure bar is visible: minimum 2% when has value, 0% when empty
-  if (percentage === 0) {
-    percentage = 0;
-  } else if (percentage < 2) {
-    percentage = 2;
-  } else if (percentage > 100) {
-    percentage = 100;
-  }
+  // Calculate percentage
+  let percentage = (used / budget) * 100;
+  percentage = Math.max(0, Math.min(percentage, 100));
   
+  // Update bar
   const barInner = document.getElementById('budgetBarInner');
   barInner.style.width = percentage + '%';
   
-  if (used > total) {
+  // Update color
+  if (used > budget) {
     barInner.classList.add('exceeded');
   } else {
     barInner.classList.remove('exceeded');
   }
   
-  document.getElementById('budgetUsed').textContent = '$' + used.toFixed(2);
-  document.getElementById('budgetTotal').textContent = '$' + total.toFixed(2);
+  // Update text
+  const usedEl = document.getElementById('budgetUsed');
+  const totalEl = document.getElementById('budgetTotal');
+  
+  if (usedEl) usedEl.textContent = '$' + used.toFixed(2);
+  if (totalEl) totalEl.textContent = '$' + budget.toFixed(2);
+  
+  // Force repaint
+  void barInner.offsetWidth;
 }
 
 function setBudget() {
