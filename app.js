@@ -111,7 +111,7 @@ function showMessage(elementId, text, type = 'success') {
 }
 
 function updateBudgetDisplay() {
-  if (budgetManager.budget <= 0) {
+  if (budgetManager.budget <= 0 || budgetManager.budget > 999999 || isNaN(budgetManager.budget)) {
     document.getElementById('budgetStatus').style.display = 'none';
     return;
   }
@@ -135,12 +135,15 @@ function updateBudgetDisplay() {
 
 function setBudget() {
   const val = parseFloat(document.getElementById('budgetInput').value);
-  if (!val || val < 0) {
-    showMessage('budgetMessage', 'Please enter a valid budget', 'error');
+  if (!val || isNaN(val) || val <= 0) {
+    showMessage('budgetMessage', 'Please enter a valid positive budget', 'error');
+    return;
+  }
+  if (val > 999999) {
+    showMessage('budgetMessage', 'Budget value too large', 'error');
     return;
   }
   budgetManager.setBudget(val);
-  document.getElementById('budgetInput').value = '';
   updateBudgetDisplay();
   showMessage('budgetMessage', `Budget set to $${val.toFixed(2)}`, 'success');
 }
@@ -273,8 +276,20 @@ function viewTab(tab) {
 
 // Initialize on load
 window.addEventListener('load', () => {
+  // Clear corrupted data if needed
+  const storedBudget = localStorage.getItem('budget');
+  if (storedBudget && (storedBudget === 'NaN' || isNaN(parseFloat(storedBudget)) || parseFloat(storedBudget) > 999999)) {
+    localStorage.clear();
+    budgetManager.budget = 0;
+    budgetManager.expenses = [];
+  }
+  
   updateBudgetDisplay();
-  if (budgetManager.budget > 0) {
+  // Only show budget if valid
+  if (budgetManager.budget > 0 && budgetManager.budget < 999999) {
     document.getElementById('budgetInput').value = budgetManager.budget;
+  } else {
+    document.getElementById('budgetInput').value = '';
+    document.getElementById('budgetStatus').style.display = 'none';
   }
 });
