@@ -275,7 +275,7 @@ function showCategoryReport() {
   document.getElementById('output4').innerHTML = html;
 }
 
-function viewTab(tab) {
+function viewTab(tab, ev) {
   // Hide all tabs
   document.getElementById('allTab').style.display = 'none';
   document.getElementById('categoryTab').style.display = 'none';
@@ -290,7 +290,9 @@ function viewTab(tab) {
   
   // Update buttons
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
+  if (ev && ev.currentTarget) {
+    ev.currentTarget.classList.add('active');
+  }
   
   // Show selected tab
   if (tab === 'all') {
@@ -303,6 +305,11 @@ function viewTab(tab) {
   } else if (tab === 'reports') {
     document.getElementById('reportsTab').style.display = 'block';
   }
+}
+
+function displayAllExpenses() {
+  const expenses = budgetManager.getAllExpenses();
+  document.getElementById('output').innerHTML = formatTable(expenses);
 }
 
 // Initialize on load
