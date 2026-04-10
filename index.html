@@ -2,96 +2,305 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Inventory Management System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monthly Money Coach - Expense Tracker</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #1e1e1e; color: #d4d4d4; font-family: monospace; padding: 20px; }
-    h2   { color: #4ec9b0; margin-bottom: 4px; }
-    p.sub { color: #888; font-size: 13px; margin-bottom: 12px; }
-    #output {
-      background: #0d0d0d;
-      color: #00ff41;
-      padding: 16px;
-      height: 420px;
-      overflow-y: auto;
-      border: 1px solid #333;
-      white-space: pre-wrap;
-      font-size: 14px;
-      line-height: 1.5;
-      border-radius: 4px;
-    }
-    #input-row { display: flex; margin-top: 10px; gap: 8px; }
-    #userinput {
-      flex: 1;
-      background: #0d0d0d;
-      color: #00ff41;
-      border: 1px solid #4ec9b0;
-      padding: 10px;
+    body {
+      background: #1e1e1e;
+      color: #d4d4d4;
       font-family: monospace;
-      font-size: 14px;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { color: #4ec9b0; margin-bottom: 8px; font-size: 28px; }
+    .subtitle { color: #888; font-size: 13px; margin-bottom: 20px; }
+    
+    .section {
+      background: #252525;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .section h2 { color: #7ee8d4; font-size: 16px; margin-bottom: 12px; }
+    
+    .form-group {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .form-row.full { grid-template-columns: 1fr; }
+    
+    label { color: #888; font-size: 12px; text-transform: uppercase; }
+    input, select, textarea {
+      background: #0d0d0d;
+      color: #00ff41;
+      border: 1px solid #333;
+      padding: 8px 10px;
+      font-family: monospace;
+      font-size: 13px;
       border-radius: 4px;
       outline: none;
     }
-    #userinput:focus { border-color: #7ee8d4; }
+    input:focus, select:focus, textarea:focus {
+      border-color: #4ec9b0;
+      box-shadow: 0 0 8px rgba(78, 201, 176, 0.2);
+    }
+    
     button {
       background: #4ec9b0;
       color: #000;
       border: none;
-      padding: 10px 24px;
+      padding: 10px 16px;
       font-family: monospace;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
       border-radius: 4px;
       font-weight: bold;
+      transition: background 0.2s;
     }
     button:hover { background: #3ab89a; }
-    #status { color: #888; font-size: 12px; margin-top: 6px; }
+    button:active { transform: scale(0.98); }
+    
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .button-group.full { grid-template-columns: 1fr; }
+    
+    .message {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      font-size: 12px;
+    }
+    .message.success {
+      background: rgba(78, 201, 176, 0.2);
+      border-left: 3px solid #4ec9b0;
+      color: #7ee8d4;
+    }
+    .message.error {
+      background: rgba(244, 67, 54, 0.2);
+      border-left: 3px solid #f44336;
+      color: #ff6b6b;
+    }
+    .message.warning {
+      background: rgba(255, 193, 7, 0.2);
+      border-left: 3px solid #ffc107;
+      color: #ffeb3b;
+    }
+    
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .table th {
+      background: #0d0d0d;
+      color: #4ec9b0;
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+      font-weight: bold;
+    }
+    .table td {
+      padding: 8px;
+      border-bottom: 1px solid #222;
+    }
+    .table tr:hover { background: #1a1a1a; }
+    .table .amount { color: #00ff41; }
+    .table .category { color: #7ee8d4; }
+    
+    #output {
+      background: #0d0d0d;
+      border: 1px solid #333;
+      padding: 12px;
+      border-radius: 4px;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+    }
+    
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .tab-btn {
+      padding: 8px;
+      font-size: 12px;
+      background: #0d0d0d;
+      color: #888;
+      border: 1px solid #333;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: #4ec9b0;
+      color: #000;
+      border-color: #4ec9b0;
+    }
+    
+    .budget-status {
+      padding: 12px;
+      background: #0d0d0d;
+      border: 1px solid #333;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+    .budget-status h3 { color: #7ee8d4; font-size: 13px; margin-bottom: 6px; }
+    .budget-bar {
+      width: 100%;
+      height: 20px;
+      background: #1a1a1a;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .budget-bar-inner {
+      height: 100%;
+      background: #4ec9b0;
+      transition: width 0.3s;
+    }
+    .budget-bar-inner.exceeded { background: #f44336; }
+    .budget-info { color: #888; font-size: 11px; margin-top: 4px; }
   </style>
 </head>
 <body>
-  <h2>📦 Inventory Management System</h2>
-  <p class="sub">Type a number and press Enter or click Send to interact.</p>
-  <div id="output"></div>
-  <div id="input-row">
-    <input id="userinput" type="text" placeholder="Enter input here..." autofocus autocomplete="off"/>
-    <button onclick="sendInput()">Send</button>
+  <div class="container">
+    <h1>💰 Monthly Money Coach</h1>
+    <p class="subtitle">Track expenses, manage budget, and avoid overspending</p>
+    
+    <!-- Budget Setup -->
+    <div class="section">
+      <h2>Budget Setup</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Monthly Budget</label>
+          <input type="number" id="budgetInput" placeholder="Enter budget (e.g., 5000)" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button onclick="setBudget()">Set Budget</button>
+        </div>
+      </div>
+      <div id="budgetMessage"></div>
+      <div id="budgetStatus" class="budget-status" style="display:none;">
+        <h3>Current Month Status</h3>
+        <div class="budget-bar">
+          <div id="budgetBarInner" class="budget-bar-inner" style="width: 0%"></div>
+        </div>
+        <div class="budget-info">
+          <span id="budgetUsed">$0.00</span> / <span id="budgetTotal">$0.00</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Add Expense -->
+    <div class="section">
+      <h2>Add New Expense</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date (DD-MM)</label>
+          <input type="text" id="dateInput" placeholder="e.g., 15-04" maxlength="5">
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="categoryInput">
+            <option value="">-- Select Category --</option>
+            <option value="Food">🍔 Food</option>
+            <option value="Transport">🚗 Transport</option>
+            <option value="Entertainment">🎬 Entertainment</option>
+            <option value="Utilities">💡 Utilities</option>
+            <option value="Other">📌 Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Amount ($)</label>
+          <input type="number" id="amountInput" placeholder="Enter amount" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Note</label>
+          <input type="text" id="noteInput" placeholder="Optional note">
+        </div>
+      </div>
+      <div class="button-group full">
+        <button onclick="addExpense()">Add Expense</button>
+      </div>
+      <div id="addMessage"></div>
+    </div>
+    
+    <!-- View/Search Expenses -->
+    <div class="section">
+      <h2>Expenses</h2>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="viewTab('all')">All Expenses</button>
+        <button class="tab-btn" onclick="viewTab('category')">By Category</button>
+        <button class="tab-btn" onclick="viewTab('date')">By Date</button>
+        <button class="tab-btn" onclick="viewTab('reports')">Reports</button>
+      </div>
+      
+      <!-- All Expenses Tab -->
+      <div id="allTab" class="tab-content">
+        <div id="output"></div>
+        <button onclick="displayAllExpenses()" style="width: 100%;">Refresh</button>
+      </div>
+      
+      <!-- Category Search Tab -->
+      <div id="categoryTab" class="tab-content" style="display:none;">
+        <div class="form-group">
+          <label>Filter by Category</label>
+          <select id="searchCategory">
+            <option value="">-- All Categories --</option>
+            <option value="Food">🍔 Food</option>
+            <option value="Transport">🚗 Transport</option>
+            <option value="Entertainment">🎬 Entertainment</option>
+            <option value="Utilities">💡 Utilities</option>
+            <option value="Other">📌 Other</option>
+          </select>
+        </div>
+        <button onclick="searchByCategory()" style="width: 100%; margin-bottom: 12px;">Search</button>
+        <div id="output2"></div>
+      </div>
+      
+      <!-- Date Search Tab -->
+      <div id="dateTab" class="tab-content" style="display:none;">
+        <div class="form-group">
+          <label>Filter by Date (DD-MM)</label>
+          <input type="text" id="searchDate" placeholder="e.g., 15-04" maxlength="5">
+        </div>
+        <button onclick="searchByDate()" style="width: 100%; margin-bottom: 12px;">Search</button>
+        <div id="output3"></div>
+      </div>
+      
+      <!-- Reports Tab -->
+      <div id="reportsTab" class="tab-content" style="display:none;">
+        <div class="form-group">
+          <label>Month (MM)</label>
+          <input type="text" id="reportMonth" placeholder="e.g., 04" maxlength="2">
+        </div>
+        <div class="button-group">
+          <button onclick="showMonthlyReport()">Monthly Total</button>
+          <button onclick="showCategoryReport()">Category Report</button>
+        </div>
+        <div id="output4"></div>
+      </div>
+    </div>
+    
   </div>
-  <p id="status">Loading...</p>
 
-  <script>
-    var outputEl  = document.getElementById('output');
-    var statusEl  = document.getElementById('status');
-    var inputEl   = document.getElementById('userinput');
-
-    /* Capture all printf output */
-    var Module = {
-      print: function(text) {
-        outputEl.textContent += text + '\n';
-        outputEl.scrollTop = outputEl.scrollHeight;
-      },
-      printErr: function(text) {
-        /* silence internal emscripten noise */
-      },
-      onRuntimeInitialized: function() {
-        statusEl.textContent = 'Ready. Type your input above.';
-      }
-    };
-
-    inputEl.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') sendInput();
-    });
-
-    function sendInput() {
-      var val = inputEl.value.trim();
-      outputEl.textContent += '> ' + val + '\n';
-      outputEl.scrollTop = outputEl.scrollHeight;
-      /* Call the C function handleInput(const char* input) */
-      Module.ccall('handleInput', null, ['string'], [val]);
-      inputEl.value = '';
-      inputEl.focus();
-    }
-  </script>
-
-  <script async type="text/javascript" src="index.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
