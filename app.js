@@ -74,6 +74,12 @@ class BudgetManager {
       .reduce((sum, e) => sum + e.amount, 0);
   }
   
+  getPreviousMonthTotal(month) {
+    let prevMonth = parseInt(month) - 1;
+    if (prevMonth < 1) prevMonth = 12;
+    return this.getMonthlyTotal(String(prevMonth).padStart(2, '0'));
+  }
+  
   getCategoryTotals() {
     const totals = {};
     this.expenses.forEach(e => {
@@ -287,11 +293,21 @@ function showMonthlyReport() {
   }
   
   const total = budgetManager.getMonthlyTotal(month);
+  const prevTotal = budgetManager.getPreviousMonthTotal(month);
   const budget = budgetManager.budget;
   const exceeded = total > budget && budget > 0;
   
+  // Calculate month-over-month change
+  let change = total - prevTotal;
+  let changePercent = prevTotal > 0 ? (change / prevTotal) * 100 : 0;
+  let changeColor = change > 0 ? 'ff6b6b' : '4ec9b0';
+  let changeSymbol = change > 0 ? '↑' : change < 0 ? '↓' : '→';
+  
   let html = `<strong>Monthly Report - Month ${month}</strong><br><br>`;
   html += `Total Expenses: <span class="amount">$${total.toFixed(2)}</span><br>`;
+  html += `Previous Month: <span class="amount">$${prevTotal.toFixed(2)}</span><br>`;
+  html += `<span style="color: #${changeColor};">Vs Previous: ${changeSymbol} $${Math.abs(change).toFixed(2)} (${Math.abs(changePercent).toFixed(1)}%)</span><br><br>`;
+  
   html += `Budget: <span class="amount">$${budget.toFixed(2)}</span><br>`;
   if (budget > 0) {
     const remaining = budget - total;
