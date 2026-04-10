@@ -92,12 +92,30 @@ class BudgetManager {
   loadFromStorage() {
     const stored = localStorage.getItem('expenses');
     if (stored) {
-      this.expenses = JSON.parse(stored);
+      try {
+        this.expenses = JSON.parse(stored);
+      } catch(e) {
+        this.expenses = [];
+      }
     }
     const budget = localStorage.getItem('budget');
     if (budget) {
-      this.budget = parseFloat(budget);
+      const parsed = parseFloat(budget);
+      if (isNaN(parsed) || parsed < 0 || parsed > 999999) {
+        localStorage.removeItem('budget');
+        localStorage.removeItem('expenses');
+        this.budget = 0;
+        this.expenses = [];
+      } else {
+        this.budget = parsed;
+      }
     }
+  }
+  
+  clearAllData() {
+    localStorage.clear();
+    this.budget = 0;
+    this.expenses = [];
   }
 }
 
@@ -146,6 +164,19 @@ function setBudget() {
   budgetManager.setBudget(val);
   updateBudgetDisplay();
   showMessage('budgetMessage', `Budget set to $${val.toFixed(2)}`, 'success');
+}
+
+function clearAllData() {
+  if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+    budgetManager.clearAllData();
+    document.getElementById('budgetInput').value = '';
+    document.getElementById('output').innerHTML = '';
+    document.getElementById('output2').innerHTML = '';
+    document.getElementById('output3').innerHTML = '';
+    document.getElementById('output4').innerHTML = '';
+    updateBudgetDisplay();
+    showMessage('budgetMessage', 'All data cleared!', 'success');
+  }
 }
 
 function addExpense() {
@@ -276,20 +307,9 @@ function viewTab(tab) {
 
 // Initialize on load
 window.addEventListener('load', () => {
-  // Clear corrupted data if needed
-  const storedBudget = localStorage.getItem('budget');
-  if (storedBudget && (storedBudget === 'NaN' || isNaN(parseFloat(storedBudget)) || parseFloat(storedBudget) > 999999)) {
-    localStorage.clear();
-    budgetManager.budget = 0;
-    budgetManager.expenses = [];
-  }
-  
   updateBudgetDisplay();
-  // Only show budget if valid
-  if (budgetManager.budget > 0 && budgetManager.budget < 999999) {
+  if (budgetManager.budget > 0) {
     document.getElementById('budgetInput').value = budgetManager.budget;
-  } else {
-    document.getElementById('budgetInput').value = '';
-    document.getElementById('budgetStatus').style.display = 'none';
   }
+  displayAllExpenses();
 });
