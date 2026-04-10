@@ -41,6 +41,15 @@ class BudgetManager {
     return { success: true, msg };
   }
   
+  deleteExpense(index) {
+    if (index >= 0 && index < this.expenses.length) {
+      this.expenses.splice(index, 1);
+      this.saveToStorage();
+      return { success: true, msg: "Expense deleted successfully!" };
+    }
+    return { success: false, msg: "Failed to delete expense" };
+  }
+  
   getAllExpenses() {
     return this.expenses.sort((a, b) => {
       const [ad, am] = a.date.split('-');
@@ -220,12 +229,32 @@ function addExpense() {
 function formatTable(expenses) {
   if (expenses.length === 0) return 'No expenses found.';
   
-  let html = '<table class="table"><thead><tr><th>Date</th><th>Category</th><th>Amount</th><th>Note</th></tr></thead><tbody>';
-  expenses.forEach(e => {
-    html += `<tr><td>${e.date}</td><td class="category">${e.category}</td><td class="amount">$${e.amount.toFixed(2)}</td><td>${e.note}</td></tr>`;
+  let html = '<table class="table"><thead><tr><th>Date</th><th>Category</th><th>Amount</th><th>Note</th><th>Action</th></tr></thead><tbody>';
+  expenses.forEach((e, idx) => {
+    html += `<tr><td>${e.date}</td><td class="category">${e.category}</td><td class="amount">$${e.amount.toFixed(2)}</td><td>${e.note}</td><td><button class="delete-btn" onclick="handleDeleteExpense(${idx})">Delete</button></td></tr>`;
   });
   html += '</tbody></table>';
   return html;
+}
+
+function handleDeleteExpense(index) {
+  if (confirm('Are you sure you want to delete this expense?')) {
+    const result = budgetManager.deleteExpense(index);
+    if (result.success) {
+      showMessage('addMessage', result.msg, 'success');
+      updateBudgetDisplay();
+      displayAllExpenses();
+      // Also refresh the current tab view
+      const activeTab = document.querySelector('.tab-btn.active');
+      if (activeTab && activeTab.textContent.includes('Category')) {
+        searchByCategory();
+      } else if (activeTab && activeTab.textContent.includes('Date')) {
+        searchByDate();
+      }
+    } else {
+      showMessage('addMessage', result.msg, 'error');
+    }
+  }
 }
 
 function displayAllExpenses() {
