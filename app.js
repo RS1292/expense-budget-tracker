@@ -137,10 +137,20 @@ function updateBudgetDisplay() {
   document.getElementById('budgetStatus').style.display = 'block';
   const used = budgetManager.getCurrentMonthTotal();
   const total = budgetManager.budget;
-  const percentage = Math.min((used / total) * 100, 100);
-  const barInner = document.getElementById('budgetBarInner');
+  let percentage = (used / total) * 100;
   
+  // Ensure bar is visible: minimum 2% when has value, 0% when empty
+  if (percentage === 0) {
+    percentage = 0;
+  } else if (percentage < 2) {
+    percentage = 2;
+  } else if (percentage > 100) {
+    percentage = 100;
+  }
+  
+  const barInner = document.getElementById('budgetBarInner');
   barInner.style.width = percentage + '%';
+  
   if (used > total) {
     barInner.classList.add('exceeded');
   } else {

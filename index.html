@@ -161,18 +161,25 @@
     .budget-status h3 { color: #7ee8d4; font-size: 13px; margin-bottom: 6px; }
     .budget-bar {
       width: 100%;
-      height: 20px;
+      height: 24px;
       background: #1a1a1a;
-      border-radius: 2px;
+      border-radius: 4px;
       overflow: hidden;
-      margin-top: 6px;
+      margin-top: 8px;
+      border: 1px solid #333;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
     }
     .budget-bar-inner {
       height: 100%;
-      background: #4ec9b0;
-      transition: width 0.3s;
+      background: linear-gradient(90deg, #4ec9b0, #3ab89a);
+      transition: width 0.4s ease-in-out;
+      min-width: 2px;
+      box-shadow: 0 1px 3px rgba(78, 201, 176, 0.3);
     }
-    .budget-bar-inner.exceeded { background: #f44336; }
+    .budget-bar-inner.exceeded { 
+      background: linear-gradient(90deg, #ff6b6b, #f44336);
+      box-shadow: 0 1px 3px rgba(244, 67, 54, 0.3);
+    }
     .budget-info { color: #888; font-size: 11px; margin-top: 4px; }
   </style>
 </head>
