@@ -45,8 +45,8 @@ class BudgetManager {
     return this.expenses.sort((a, b) => {
       const [ad, am] = a.date.split('-');
       const [bd, bm] = b.date.split('-');
-      if (am !== bm) return bm - am;
-      return bd - ad;
+      if (parseInt(am) !== parseInt(bm)) return parseInt(bm) - parseInt(am);
+      return parseInt(bd) - parseInt(ad);
     });
   }
   
@@ -235,7 +235,7 @@ function searchByDate() {
 
 function showMonthlyReport() {
   const month = document.getElementById('reportMonth').value.trim();
-  if (!month || !month.match(/^\d{2}$/)) {
+  if (!month || !month.match(/^\d{2}$/) || month < '01' || month > '12') {
     showMessage('output4', 'Please enter month in MM format (01-12)', 'error');
     return;
   }
@@ -304,12 +304,12 @@ function viewTab(tab, ev) {
     document.getElementById('dateTab').style.display = 'block';
   } else if (tab === 'reports') {
     document.getElementById('reportsTab').style.display = 'block';
+    // FIX: Auto-display current month report when Reports tab is clicked
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    document.getElementById('reportMonth').value = month;
+    showMonthlyReport();
   }
-}
-
-function displayAllExpenses() {
-  const expenses = budgetManager.getAllExpenses();
-  document.getElementById('output').innerHTML = formatTable(expenses);
 }
 
 // Initialize on load
